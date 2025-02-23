@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    let rawReply = response.data.choices[0]?.text || "No response";
+    const rawReply = response.data.choices[0]?.text || "No response";
 
     // Cleaning: Removing repeated words, ###, extra spaces
     const cleanedReply = rawReply
