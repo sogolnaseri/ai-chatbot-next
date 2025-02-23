@@ -23,10 +23,8 @@ cd ai-chatbot-next
 ```sh
 npm install
 ```
-
-### **3️⃣ Set Up Environment Variables**
-Create a .env.local file:
-Replace YOUR_TOGETHER_API_KEY_HERE with your actual Together AI API key.
+### **3️⃣ Set Up Environment Variables**
+Create a `.env.local` file in the root directory of your project, and add your Together AI API key:
 ```sh
 TOGETHER_API_KEY=your_api_key
 ```
