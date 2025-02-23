@@ -4,7 +4,7 @@ import React from "react";
 import Chat from "./components/Chat";
 import { ChatProvider } from "./context/ChatContext";
 
-export default function Home() {
+export default function Page() {
   return (
     <ChatProvider>
       <h1 style={{ textAlign: "center" }}>AI Chatbot 🤖</h1>

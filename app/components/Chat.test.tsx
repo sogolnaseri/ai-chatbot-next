@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import axios from "axios";
 import TestWrapper from "../components/TestWrapper";
-import Home from "../page";
+import Page from "../page";
 
 // Mock axios
 jest.mock("axios");
@@ -12,7 +12,7 @@ describe("Chat Component", () => {
   it("renders chat component correctly", async () => {
     render(
         <TestWrapper>
-          <Home />
+          <Page />
         </TestWrapper>
       );
 
@@ -29,7 +29,7 @@ describe("Chat Component", () => {
 
     render(
         <TestWrapper>
-          <Home />
+          <Page />
         </TestWrapper>
       );
 
@@ -59,7 +59,7 @@ describe("Chat Component", () => {
 
     render(
         <TestWrapper>
-          <Home />
+          <Page />
         </TestWrapper>
       );
 
