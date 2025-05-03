@@ -4,7 +4,9 @@ A modern AI-powered chatbot built with **Next.js**, **Context API**, **Styled Co
 
 ## 🚀 Live Demo
 🔗 [AI Chatbot - Live App](http://ai-chatbot-next-cyan.vercel.app/)
-<img width="868" alt="image" src="https://github.com/user-attachments/assets/94861ee4-c421-48a9-8d62-12e665b70f0f" />
+
+<img width="868" alt="image" src="https://github.com/user-attachments/assets/7d2cf743-9379-40c1-82a5-f982b940a217" />
+
 
 
 ## 🛠️ Tech Stack
