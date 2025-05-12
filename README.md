@@ -7,7 +7,8 @@ Features include conversation memory, local chat persistence using `localStorage
 
 🔗 [AI Chatbot - Live App](http://ai-chatbot-next-cyan.vercel.app/)
 
-<img width="868" alt="image" src="https://github.com/user-attachments/assets/7d2cf743-9379-40c1-82a5-f982b940a217" />
+![image](https://github.com/user-attachments/assets/0b398a70-8a60-4567-b04c-bf09f117b3ba)
+
 
 ## 🛠️ Tech Stack
 
