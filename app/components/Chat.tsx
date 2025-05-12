@@ -1,38 +1,93 @@
-"use client"; //React hooks (useState, createContext, useContext) only work in client components in Next.js.
+"use client";
 
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useChat } from "../context/ChatContext";
 import axios from "axios";
 import styled from "styled-components";
 
 const ChatContainer = styled.div`
+  position: relative;
   max-width: 600px;
-  margin: auto;
+  margin: 40px auto;
   padding: 20px;
-  background: #f8f9fa;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  background: #f9f9f9;
+  border-radius: 16px;
+  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.1);
+`;
+
+const MessageBubble = styled.p<{ role: string }>`
+  text-align: ${(props) => (props.role === "user" ? "right" : "left")};
+  background-color: ${(props) =>
+    props.role === "user" ? "#DCF8C6" : "#E6E6E6"};
+  display: inline-block;
+  padding: 10px 14px;
+  border-radius: 16px;
+  margin: 8px 0;
+  max-width: 85%;
+`;
+
+const InputWrapper = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
 `;
 
 const ChatInput = styled.input`
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 5px;
-  border: 1px solid #ddd;
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+`;
+
+const ClearButton = styled.button`
+  background-color: #4f90ff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background-color: #3277e0;
+  }
 `;
 
 export default function Chat() {
   const { messages, addMessage } = useChat();
   const [input, setInput] = useState("");
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    const savedMessages = localStorage.getItem("chatMessages");
+    if (savedMessages) {
+      try {
+        const parsed = JSON.parse(savedMessages);
+        parsed.forEach((msg: { role: string; content: string }) => {
+          if (msg.role === "user" || msg.role === "assistant") {
+            addMessage({ role: msg.role, content: msg.content });
+          }
+        });
+      } catch (err) {
+        console.error("Error parsing saved chat messages:", err);
+      }
+    }
+    setLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (loaded) {
+      localStorage.setItem("chatMessages", JSON.stringify(messages));
+    }
+  }, [messages, loaded]);
 
   const sendMessage = async () => {
     if (!input.trim()) return;
 
-    const userInput = input; // Store input before clearing
+    const userInput = input;
     setInput("");
-
     addMessage({ role: "user", content: userInput });
 
     try {
@@ -55,21 +110,28 @@ export default function Chat() {
     }
   };
 
+  const clearChat = () => {
+    localStorage.removeItem("chatMessages");
+    window.location.reload();
+  };
+
   return (
     <ChatContainer>
       {messages.map((msg, index) => (
-        <p
-          key={index}
-          style={{ textAlign: msg.role === "user" ? "right" : "left" }}
-        >
+        <MessageBubble key={index} role={msg.role}>
           <b>{msg.role === "user" ? "You" : "AI"}:</b> {msg.content}
-        </p>
+        </MessageBubble>
       ))}
-      <ChatInput
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-      />
+
+      <InputWrapper>
+        <ChatInput
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          placeholder="Type your message and press Enter..."
+        />
+        <ClearButton onClick={clearChat}>Clear Chat</ClearButton>
+      </InputWrapper>
     </ChatContainer>
   );
 }
