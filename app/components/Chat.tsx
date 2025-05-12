@@ -39,7 +39,7 @@ export default function Chat() {
       const { data } = await axios.post("/api/chat", { message: userInput });
       addMessage({ role: "assistant", content: data.reply });
     } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      console.error("Error from API:", error);
       addMessage({ role: "assistant", content: "Error fetching response." });
     }
   };
