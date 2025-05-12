@@ -36,7 +36,18 @@ export default function Chat() {
     addMessage({ role: "user", content: userInput });
 
     try {
-      const { data } = await axios.post("/api/chat", { message: userInput });
+      const fullMessages = [
+        {
+          role: "system",
+          content: "You are a helpful assistant. Answer concisely.",
+        },
+        ...messages,
+        { role: "user", content: userInput },
+      ];
+
+      const { data } = await axios.post("/api/chat", {
+        messages: fullMessages,
+      });
       addMessage({ role: "assistant", content: data.reply });
     } catch (error) {
       console.error("Error from API:", error);

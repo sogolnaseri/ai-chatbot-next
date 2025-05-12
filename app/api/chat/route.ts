@@ -6,11 +6,11 @@ const openai = new OpenAI({
 });
 
 export async function POST(req: NextRequest) {
-  const { message } = await req.json();
+  const { messages } = await req.json();
 
-  if (!message) {
+  if (!messages || !Array.isArray(messages)) {
     return NextResponse.json(
-      { error: "Missing user message" },
+      { error: "Invalid messages format" },
       { status: 400 }
     );
   }
@@ -18,13 +18,7 @@ export async function POST(req: NextRequest) {
   try {
     const chatCompletion = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: "You are a helpful assistant. Answer concisely.",
-        },
-        { role: "user", content: message },
-      ],
+      messages: messages, // Full conversation including system prompt
     });
 
     const reply = chatCompletion.choices[0]?.message?.content || "No response";
