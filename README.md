@@ -7,13 +7,17 @@ Features include conversation memory, local chat persistence using `localStorage
 
 🔗 [AI Chatbot - Live App](http://ai-chatbot-next-cyan.vercel.app/)
 
-![image](https://github.com/user-attachments/assets/0b398a70-8a60-4567-b04c-bf09f117b3ba)
+Light Mode
+![alt text](image.png)
 
+Dark Mode
+![alt text](image-1.png)
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: Next.js, TypeScript, Styled Components
 - **State Management**: Context API
+- **UI Features**: Theme toggle (light/dark)
 - **API**: OpenAI GPT-3.5 via OpenAI API
 - **Testing**: Jest, React Testing Library
 - **Deployment**: Vercel
@@ -24,6 +28,7 @@ Features include conversation memory, local chat persistence using `localStorage
 - 💬 Clean chat interface with Styled Components
 - 💾 Persistent message storage using `localStorage`
 - 🔄 Clear chat button to reset the conversation
+- 🌓 Light/Dark mode toggle with a modern theme switcher
 - ⚡ Powered by OpenAI’s GPT-3.5 Turbo
 
 ## 📥 Installation Guide
