@@ -1,4 +1,4 @@
-"use client";//React hooks (useState, createContext, useContext) only work in client components in Next.js.
+"use client"; //React hooks (useState, createContext, useContext) only work in client components in Next.js.
 
 import React from "react";
 import { useState } from "react";
@@ -29,31 +29,36 @@ export default function Chat() {
 
   const sendMessage = async () => {
     if (!input.trim()) return;
-  
+
     const userInput = input; // Store input before clearing
     setInput("");
-    
+
     addMessage({ role: "user", content: userInput });
-  
+
     try {
       const { data } = await axios.post("/api/chat", { message: userInput });
       addMessage({ role: "assistant", content: data.reply });
-    } 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    catch (error) {
+    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       addMessage({ role: "assistant", content: "Error fetching response." });
     }
   };
-  
 
   return (
     <ChatContainer>
       {messages.map((msg, index) => (
-        <p key={index} style={{ textAlign: msg.role === "user" ? "right" : "left" }}>
+        <p
+          key={index}
+          style={{ textAlign: msg.role === "user" ? "right" : "left" }}
+        >
           <b>{msg.role === "user" ? "You" : "AI"}:</b> {msg.content}
         </p>
       ))}
-      <ChatInput value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendMessage()} />
+      <ChatInput
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+      />
     </ChatContainer>
   );
 }

@@ -1,47 +1,38 @@
 import { NextRequest, NextResponse } from "next/server";
-import axios from "axios";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function POST(req: NextRequest) {
   const { message } = await req.json();
-  const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
 
-  if (!TOGETHER_API_KEY) {
-    return NextResponse.json({ error: "Missing API Key" }, { status: 500 });
+  if (!message) {
+    return NextResponse.json(
+      { error: "Missing user message" },
+      { status: 400 }
+    );
   }
 
   try {
-    const response = await axios.post(
-      "https://api.together.xyz/v1/completions",
-      {
-        model: "mistralai/Mixtral-8x7B-Instruct-v0.1",
-        prompt: `You are a helpful assistant. Answer concisely.\nUser: ${message}\nAssistant:`,
-        max_tokens: 150,
-        temperature: 0.3 // Lower randomness for more structured answers
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${TOGETHER_API_KEY}`,
-          "Content-Type": "application/json",
+    const chatCompletion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        {
+          role: "system",
+          content: "You are a helpful assistant. Answer concisely.",
         },
-      }
-    );
+        { role: "user", content: message },
+      ],
+    });
 
-    const rawReply = response.data.choices[0]?.text || "No response";
-
-    // Cleaning: Removing repeated words, ###, extra spaces
-    const cleanedReply = rawReply
-      .replace(/\n+/g, " ") // Replace multiple newlines with space
-      .replace(/###/g, "") // Remove ###
-      .replace(/\?\s*/g, "") // Remove leading question marks
-      .replace(/\b(\w+)\s+\1\b/gi, "$1") // Remove duplicated words (e.g., "Paris Paris")
-      .replace(new RegExp(message, "gi"), "") // Remove user input from the response
-      .trim();    
-
-    return NextResponse.json({ reply: cleanedReply });
+    const reply = chatCompletion.choices[0]?.message?.content || "No response";
+    return NextResponse.json({ reply: reply.trim() });
   } catch (error) {
-    console.error("Error fetching response from Together AI:", error);
+    console.error("Error from OpenAI:", error);
     return NextResponse.json(
-      { error: "Failed to fetch response from Together AI" },
+      { error: "Failed to fetch response from OpenAI" },
       { status: 500 }
     );
   }
