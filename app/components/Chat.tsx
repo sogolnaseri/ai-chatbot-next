@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from "react";
 import { useChat } from "../context/ChatContext";
 import { useTheme } from "../context/ThemeContext";
-import axios from "axios";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
+
+// ─── Styled components ────────────────────────────────────────────────────────
 
 const PageWrapper = styled.div`
   position: relative;
@@ -18,7 +19,6 @@ const ToggleThemeButton = styled.button`
   top: 20px;
   right: 20px;
   z-index: 1000;
-
   background-color: #6366f1;
   color: white;
   font-size: 14px;
@@ -58,6 +58,29 @@ const MessageBubble = styled.p<{ role: string }>`
   transition: background 0.3s ease, color 0.3s ease;
 `;
 
+const dotPulse = keyframes`
+  0%, 60%, 100% { opacity: 0.2; transform: scale(0.8); }
+  30%            { opacity: 1;   transform: scale(1);   }
+`;
+
+const TypingIndicator = styled.div`
+  display: flex;
+  gap: 4px;
+  padding: 10px 14px;
+  width: fit-content;
+
+  span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: ${(props) => props.theme.text};
+    opacity: 0.2;
+    animation: ${dotPulse} 1.2s ease-in-out infinite;
+  }
+  span:nth-child(2) { animation-delay: 0.2s; }
+  span:nth-child(3) { animation-delay: 0.4s; }
+`;
+
 const InputWrapper = styled.div`
   display: flex;
   gap: 10px;
@@ -73,6 +96,31 @@ const ChatInput = styled.input`
   color: ${(props) => props.theme.text};
   font-size: 16px;
   transition: background 0.3s ease, color 0.3s ease;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+`;
+
+const SendButton = styled.button`
+  background-color: #6366f1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+
+  &:hover:not(:disabled) {
+    background-color: #4f46e5;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 const ClearButton = styled.button`
@@ -92,11 +140,15 @@ const ClearButton = styled.button`
   }
 `;
 
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export default function Chat() {
   const { messages, addMessage } = useChat();
   const { theme, toggleTheme } = useTheme();
   const [input, setInput] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingContent, setStreamingContent] = useState("");
 
   useEffect(() => {
     const savedMessages = localStorage.getItem("chatMessages");
@@ -122,29 +174,54 @@ export default function Chat() {
   }, [messages, loaded]);
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || isStreaming) return;
 
     const userInput = input;
     setInput("");
     addMessage({ role: "user", content: userInput });
+    setIsStreaming(true);
+    setStreamingContent("");
+
+    const fullMessages = [
+      {
+        role: "system",
+        content: "You are a helpful assistant. Answer concisely.",
+      },
+      ...messages,
+      { role: "user", content: userInput },
+    ];
 
     try {
-      const fullMessages = [
-        {
-          role: "system",
-          content: "You are a helpful assistant. Answer concisely.",
-        },
-        ...messages,
-        { role: "user", content: userInput },
-      ];
-
-      const { data } = await axios.post("/api/chat", {
-        messages: fullMessages,
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: fullMessages }),
       });
-      addMessage({ role: "assistant", content: data.reply });
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        accumulated += decoder.decode(value, { stream: true });
+        setStreamingContent(accumulated);
+      }
+
+      // Commit completed message to context (and localStorage via the effect).
+      addMessage({ role: "assistant", content: accumulated });
     } catch (error) {
       console.error("Error from API:", error);
+      // Partial streamed content is intentionally discarded on any error.
       addMessage({ role: "assistant", content: "Error fetching response." });
+    } finally {
+      setIsStreaming(false);
+      setStreamingContent("");
     }
   };
 
@@ -166,13 +243,33 @@ export default function Chat() {
             </MessageBubble>
           ))}
 
+          {/* Three-dot pulse shown between send and first token */}
+          {isStreaming && !streamingContent && (
+            <TypingIndicator aria-label="AI is typing">
+              <span />
+              <span />
+              <span />
+            </TypingIndicator>
+          )}
+
+          {/* Live streaming bubble — replaced by addMessage on completion */}
+          {streamingContent && (
+            <MessageBubble role="assistant">
+              <b>AI:</b> {streamingContent}
+            </MessageBubble>
+          )}
+
           <InputWrapper>
             <ChatInput
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               placeholder="Type your message and press Enter..."
+              disabled={isStreaming}
             />
+            <SendButton onClick={sendMessage} disabled={isStreaming}>
+              Send
+            </SendButton>
             <ClearButton onClick={clearChat}>Clear Chat</ClearButton>
           </InputWrapper>
         </ChatContainer>
