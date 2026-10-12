@@ -14,12 +14,14 @@
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
+    "@reduxjs/toolkit": "^2.13.0",
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "next": "^15.1.7",
     "openai": "^4.98.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-redux": "^9.3.0",
     "styled-components": "^6.1.15"
   },
   "devDependencies": {
