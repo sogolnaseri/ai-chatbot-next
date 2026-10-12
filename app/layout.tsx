@@ -1,4 +1,4 @@
-import { ThemeProvider } from "./context/ThemeContext";
+import ReduxProvider from "./store/ReduxProvider";
 import ThemeWrapper from "./components/ThemeWrapper";
 
 export default function RootLayout({
@@ -9,9 +9,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeProvider>
+        <ReduxProvider>
           <ThemeWrapper>{children}</ThemeWrapper>
-        </ThemeProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useChat } from "../context/ChatContext";
-import { useTheme } from "../context/ThemeContext";
+import { toggleTheme, selectTheme } from "../store/themeSlice";
 import axios from "axios";
 import styled from "styled-components";
 
@@ -94,7 +95,8 @@ const ClearButton = styled.button`
 
 export default function Chat() {
   const { messages, addMessage } = useChat();
-  const { theme, toggleTheme } = useTheme();
+  const dispatch = useDispatch();
+  const theme = useSelector(selectTheme);
   const [input, setInput] = useState("");
   const [loaded, setLoaded] = useState(false);
 
@@ -155,7 +157,7 @@ export default function Chat() {
 
   return (
     <>
-      <ToggleThemeButton onClick={toggleTheme}>
+      <ToggleThemeButton onClick={() => dispatch(toggleTheme())}>
         {theme === "light" ? "Dark Mode 🌙" : "Light Mode ☀️"}
       </ToggleThemeButton>
       <PageWrapper>
