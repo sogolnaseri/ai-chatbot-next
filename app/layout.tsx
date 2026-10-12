@@ -1,5 +1,6 @@
 import { ThemeProvider } from "./context/ThemeContext";
 import ThemeWrapper from "./components/ThemeWrapper";
+import StyledComponentsRegistry from "./lib/StyledComponentsRegistry";
 
 export default function RootLayout({
   children,
@@ -9,9 +10,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ThemeProvider>
-          <ThemeWrapper>{children}</ThemeWrapper>
-        </ThemeProvider>
+        <StyledComponentsRegistry>
+          <ThemeProvider>
+            <ThemeWrapper>{children}</ThemeWrapper>
+          </ThemeProvider>
+        </StyledComponentsRegistry>
       </body>
     </html>
   );
